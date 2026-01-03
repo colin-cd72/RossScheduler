@@ -15,13 +15,17 @@ let scheduler: Scheduler | null = null
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 
 function createWindow() {
+  // In production, resources are in app.asar, use app.getAppPath()
+  const resourcePath = isDev ? __dirname : path.join(app.getAppPath(), 'dist-electron')
+  const distPath = isDev ? path.join(__dirname, '../dist') : path.join(app.getAppPath(), 'dist')
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 900,
     minHeight: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(resourcePath, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     },
@@ -33,7 +37,7 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(distPath, 'index.html'))
   }
 
   mainWindow.on('closed', () => {
